@@ -10,14 +10,16 @@ namespace ElevatorSystem
 {
     public class ElevatorController : MonoBehaviour
     {
+        [SerializeField] private int m_MaximumWeightCapacity = 300;
+        
         private static ElevatorController _instance;
         private FloorManager _floorManager;
         [SerializeField] private float m_ElevatorSpeed = 5f;
         private ElevatorStates _currentState;
-        [ShowInInspector] private int _currentFloorIndex;
+        [ShowInInspector, ReadOnly] private int _currentFloorIndex;
         private int _destinationFloorIndex;
         private Tween _elevatorTween;
-        [ShowInInspector] private List<int> _elevatorDestinationQueue = new();
+        [ShowInInspector, ReadOnly] private List<int> _elevatorDestinationQueue = new();
         private static Transform _interior;
         public static Transform Interior => _interior;
         public int PassengerCount => _passengerCount;
@@ -27,17 +29,17 @@ namespace ElevatorSystem
         [ShowInInspector, ReadOnly] private bool _isMoving;
         private Tween _boardingTween;
         private Tween _resetTween;
-        [ShowInInspector] private bool _isIdle;
-        [ShowInInspector] private bool _isOpen;
+        [ShowInInspector, ReadOnly] private bool _isIdle;
+        [ShowInInspector, ReadOnly] private bool _isOpen;
         public static event Action<ElevatorStates> OnElevatorStateChanged;
         public static event Action<int> OnElevatorFloorChanged;
         public static event Action OnElevatorStopped;
         public static event Action<int> OnElevatorWeightUpdated;
         public static event Action<bool> OnElevatorVipOccupied;
-        [ShowInInspector] private int _weightInElevator;
+        [ShowInInspector, ReadOnly] private int _weightInElevator;
         private bool _isAtCapacity;
         public int WeightInElevator => _weightInElevator;
-        [ShowInInspector] private List<Passenger> _passengersInElevatorList = new();
+        [ShowInInspector, ReadOnly] private List<Passenger> _passengersInElevatorList = new();
         private void Awake()
         {
             _instance = this;
@@ -69,7 +71,7 @@ namespace ElevatorSystem
         {
             _passengerCount = PassengerCount - 1;
             _weightInElevator -= passenger.Weight;
-            _isAtCapacity = _weightInElevator >= 300;
+            _isAtCapacity = _weightInElevator >= m_MaximumWeightCapacity;
             _passengersInElevatorList.Remove(passenger);
             OnElevatorWeightUpdated?.Invoke(_weightInElevator);
 
@@ -110,7 +112,7 @@ namespace ElevatorSystem
                     _weightInElevator += passenger.Weight;
                     _passengersInElevatorList.Add(passenger);
                 }
-                _isAtCapacity = _weightInElevator >= 300;
+                _isAtCapacity = _weightInElevator >= m_MaximumWeightCapacity;
                 OnElevatorWeightUpdated?.Invoke(_weightInElevator);
             }
             
